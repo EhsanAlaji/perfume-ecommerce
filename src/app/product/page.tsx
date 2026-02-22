@@ -14,8 +14,9 @@ import Image from 'next/image';
 import { product } from '@/type/product.type';
 import AddBtn from '../_components/AddBtn/AddBtn';
 import AddBtnWishlist from '../_components/AddBtnWishlist';
-export default async function Product( {product}: {product: product}) {
-  const data = await getProducts();
+export default async function Product( ) {
+  // const data = await getProducts();
+  const data: product[] = await getProducts();
 
   return <>
 
