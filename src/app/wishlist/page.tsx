@@ -39,11 +39,7 @@ export default function Wishlist() {
       setDisableFlay(false);
       setdisableUpdateBtn(false);
       getUserWishlistProducts();
-      let sum =0;
-      res.data.products.forEach((prod:wishlistTpye) => {
-        sum += prod.count;
-      });
-      setCount(sum);
+   
     }
     else{
       toast.error("Failed to remove product from cart", {
