@@ -2,7 +2,7 @@
 import { getMyToken } from "@/utilities/getMyToken"
 
 
-export async function updateCartItem(id:string, count:string){ 
+export async function updateCartItem(id:string, count:number){ 
 const token= await getMyToken()
 
 if(!token) throw new Error("you must logged in first")
