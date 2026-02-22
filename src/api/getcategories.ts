@@ -1,6 +1,26 @@
-export default async function getCategories() {
-const response=await fetch(`https://ecommerce.routemisr.com/api/v1/categories` , {method:"GET"})
-const {data}=await response.json();
+// export default async function getCategories() {
+// const response=await fetch(`https://ecommerce.routemisr.com/api/v1/categories` , {method:"GET"})
+// const {data}=await response.json();
 
-return data;
+import { Category } from "@/type/cart.type";
+
+// return data;
+// }
+
+// api/getcategories.ts
+export default async function getCategories(): Promise<Category[]> {
+  try {
+    const res = await fetch("https://ecommerce.routemisr.com/api/v1/categories");
+
+    if (!res.ok) {
+      console.error("Failed to fetch categories:", res.statusText);
+      return [];
+    }
+
+    const data = await res.json();
+    return data?.data || []; // fallback Array فارغ
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    return [];
+  }
 }
