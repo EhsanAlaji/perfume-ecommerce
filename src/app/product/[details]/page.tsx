@@ -1,6 +1,6 @@
 import getProductDetails from '@/api/getDetail';
 import AddBtn from '@/app/_components/AddBtn/AddBtn';
-import { getRelatedProducts } from '@/ProductCategoryAction/relatedProducts.action';
+
 
 import AddBtnWishlist from '@/app/_components/AddBtnWishlist';
 
