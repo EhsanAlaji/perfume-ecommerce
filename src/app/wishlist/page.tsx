@@ -12,12 +12,12 @@ import { removewishlistItem } from '@/WishlistActions/removewishlistItem.action'
 import { CartContext } from '@/context/CartContext';
 
 import { getUserWishlist } from '@/WishlistActions/getUserwishlist.action';
-import {  wishlistTpye } from '@/type/wishlist.type';
+import {  WishlistTpye } from '@/type/wishlist.type';
 
 export default function Wishlist() {
   const [DisableFlay, setDisableFlay] = useState(false); // disable remove button 
     const [loading, setLoading] = useState(true);
-  const [products, setproducts] = useState<wishlistTpye[]>([]);
+  const [products, setproducts] = useState<WishlistTpye[]>([]);
   const [updateLoading, setupdateLoading] = useState(false);
   const [currentId, setcurrentId] = useState("");
   const [disableUpdateBtn, setdisableUpdateBtn] = useState(false);

@@ -1,10 +1,10 @@
 export interface Wishlist {
   status: string
   count: number
-  data: Daum[]
+  data: WishlistTpye[]
 }
 
-export interface wishlistTpye {
+export interface WishlistTpye {
   sold?: number
   images: string[]
   subcategory: Subcategory[]
