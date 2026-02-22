@@ -98,7 +98,7 @@ async function getUserWishlistProducts() {
             </tr>
         </thead>
     <tbody>
-  {products?.map((prod:wishlistTpye) => {
+  {products?.map((prod:WishlistTpye) => {
     return (
       <tr key={prod._id} className="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium">
         
