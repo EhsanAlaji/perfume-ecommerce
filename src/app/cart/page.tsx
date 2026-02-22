@@ -1,220 +1,263 @@
-"use client"
+"use client";
 
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from "react";
+import { getUserCart } from "@/CartActions/gerUserCart.action";
+import { toast } from "sonner";
+import { removeCartItem } from "@/CartActions/removeCartItem.action";
+import { updateCartItem } from "@/CartActions/updateCartItem.action";
+import { Button } from "@/components/ui/button";
+import { removeCart } from "@/CartActions/removeCart.action";
+import { CartContext } from "@/context/CartContext";
+import Link from "next/link";
+import { productCartType } from "@/type/cart.type";
+import Image from "next/image";
 
-import { getUserCart } from '@/CartActions/gerUserCart.action'
-import { set } from 'zod';
-import { toast } from 'sonner';
-import { removeCartItem } from '@/CartActions/removeCartItem.action';
-import { updateCartItem } from '@/CartActions/updateCartItem.action';
-import { Button } from '@/components/ui/button';
-import { removeCart } from '@/CartActions/removeCart.action';
-import { CartContext } from '@/context/CartContext';
-import Link from 'next/link';
-import { Cart } from '@/type/cart.type';
-import Image from 'next/image';
-
-export default function cart() {
-  const [DisableFlay, setDisableFlay] = useState(false); // disable remove button 
+export default function CartPage() {
+  const [disableRemoveBtn, setDisableRemoveBtn] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [products, setproducts] = useState([]);
-  const [updateLoading, setupdateLoading] = useState(false);
-  const [currentId, setcurrentId] = useState("");
-  const [disableUpdateBtn, setdisableUpdateBtn] = useState(false);
-  const { count , setCount } = useContext(CartContext)!
-  const [TotalPrice, setTotalPrice] = useState(0);
-  const [cartid, setcartid] = useState("");
-  async function removeProductFromCart(id:string){  
-    setDisableFlay(true);
-    setdisableUpdateBtn(true);
-    const res=await removeCartItem(id);
-    console.log(res);
-    if(res.status=="success"){
-      setproducts(res.data.products);
-      toast.success("product removed form cart successfully", {
-        duration: 3000,
-        position: "top-center"
-    });
-      setproducts(res.data.products);
-      setDisableFlay(false);
-      setdisableUpdateBtn(false);
-      getUserCartProducts()
-      let sum =0;
-      res.data.products.forEach((prod:Cart) => {
+  const [products, setProducts] = useState<productCartType[]>([]);
+  const [updateLoading, setUpdateLoading] = useState(false);
+  const [currentId, setCurrentId] = useState("");
+  const [disableUpdateBtn, setDisableUpdateBtn] = useState(false);
+  const { count, setCount } = useContext(CartContext)!;
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [cartId, setCartId] = useState("");
+
+  // ================= REMOVE PRODUCT =================
+  async function removeProductFromCart(id: string) {
+    setDisableRemoveBtn(true);
+    setDisableUpdateBtn(true);
+
+    const res = await removeCartItem(id);
+
+    if (res.status === "success") {
+      const updatedProducts = res.data.products;
+
+      setProducts(updatedProducts);
+
+      // حساب عدد المنتجات في الكارت
+      let sum = 0;
+      updatedProducts.forEach((prod: productCartType) => {
         sum += prod.count;
       });
+
+      setCount(sum);
+
+      toast.success("Product removed successfully", {
+        duration: 3000,
+        position: "top-center",
+      });
+
+      setDisableRemoveBtn(false);
+      setDisableUpdateBtn(false);
+      getUserCartProducts();
+    } else {
+      toast.error("Failed to remove product", {
+        duration: 3000,
+        position: "top-center",
+      });
+
+      setDisableRemoveBtn(false);
+      setDisableUpdateBtn(false);
+    }
+  }
+
+  // ================= GET CART =================
+  async function getUserCartProducts() {
+    const res = await getUserCart();
+
+    if (res.status === "success") {
+      setProducts(res.data.products);
+      setTotalPrice(res.data.totalCartPrice);
+      setCartId(res.data._id);
+
+      let sum = 0;
+      res.data.products.forEach((prod: productCartType) => {
+        sum += prod.count;
+      });
+
       setCount(sum);
     }
-    else{
-      toast.error("Failed to remove product from cart", {
+
+    setLoading(false);
+  }
+
+  // ================= UPDATE PRODUCT =================
+  async function updateCartProduct(
+    id: string,
+    newCount: number
+  ) {
+    if (newCount < 1) return;
+
+    setDisableRemoveBtn(true);
+    setDisableUpdateBtn(true);
+    setCurrentId(id);
+    setUpdateLoading(true);
+
+    const res = await updateCartItem(id, newCount);
+
+    if (res.status === "success") {
+      setProducts(res.data.products);
+      setTotalPrice(res.data.totalCartPrice);
+
+      let sum = 0;
+      res.data.products.forEach((prod: productCartType) => {
+        sum += prod.count;
+      });
+
+      setCount(sum);
+
+      toast.success("Quantity updated successfully", {
         duration: 3000,
-        position: "top-center"
-    });
-setdisableUpdateBtn(false);
-    
+        position: "top-center",
+      });
+    } else {
+      toast.error("Failed to update quantity", {
+        duration: 3000,
+        position: "top-center",
+      });
+    }
+
+    setUpdateLoading(false);
+    setDisableRemoveBtn(false);
+    setDisableUpdateBtn(false);
+  }
+
+  // ================= CLEAR CART =================
+  async function removeAllCartProducts() {
+    const res = await removeCart();
+
+    if (res.message === "success") {
+      setProducts([]);
+      setCount(0);
+      setTotalPrice(0);
     }
   }
 
-async function getUserCartProducts(){
-  // setLoading(true);
-  const res=await getUserCart();
-    console.log(res.data._id);
-   setcartid(res.data._id); 
-  if(res.status==="success"){
-    setproducts(res.data.products);
-    setTotalPrice(res.data.totalCartPrice);
-    setLoading(false);
-  }
-  else{
-    setLoading(false);
-  }
-
-}
-async function updateCartProduct(id:string, count:string , sign:string){
-  setDisableFlay(true);
-  setdisableUpdateBtn(true);
-  setcurrentId(id);
-  setupdateLoading(true);
-  const res= await updateCartItem(id, count);
-  if(res.status==="success"){
-    toast.success("product quantity updated successfully", {
-      duration: 3000,
-      position: "top-center"
-  });
-    setproducts(res.data.products);
-    setupdateLoading(false);
-    setdisableUpdateBtn(false);
-    setDisableFlay(false);
+  useEffect(() => {
     getUserCartProducts();
-    if(sign==="+"){
-      setCount( count + 1);
-    }
-    else if (sign==="-"){
-      setCount( count - 1);
-    }
+  }, []);
+
+  // ================= UI =================
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <span className="loader"></span>
+      </div>
+    );
   }
-  else{
-    toast.error("Failed to update product quantity", {
-      duration: 3000,
-      position: "top-center"
-  });
-  setupdateLoading(false);
-  setdisableUpdateBtn(false);
-  setDisableFlay(false);
-}
-}
 
+  if (products.length === 0) {
+    return (
+      <h1 className="text-center text-2xl font-bold my-10">
+        Your Cart is Empty
+      </h1>
+    );
+  }
 
-async function removeallCartProducts(){
-    
-  const res=await removeCart();
-console.log(res);
-if(res.message=="success"){
-setproducts([]);
+  return (
+    <div className="container mx-auto my-10">
+      <h1 className="text-2xl font-bold mb-6">Shopping Cart</h1>
 
-}
+      <h3 className="text-center my-4 text-2xl text-red-500">
+        Total Price = ${totalPrice}
+      </h3>
 
-}
-  useEffect(()=>{
-    
+      <Button
+        className="my-4 bg-red-700"
+        onClick={removeAllCartProducts}
+      >
+        Clear Cart
+      </Button>
 
-    function flag(){
-      setLoading(true)
- getUserCartProducts();
-    }
-   flag()
-    
-  },[])
-  return<>
-  {loading ?   <div className="flex items-center justify-center h-screen">
-        <div><span className="loader"></span></div>
-        </div> : products.length > 0 ? 
-   <div className=' container mx-auto my-10'>
-
-  <h1 className='text-2xl font-bold mb-6' >Shopping Cart</h1>
-
-  <h3 className='text-center my-4 text-2xl text-red-500 '> total price of products = {TotalPrice}</h3>
-  <Button className='my-4 black me-auto bg-red-700' onClick={() => removeallCartProducts()}>clear Cart </Button>
-  <div className="relative overflow-x-auto bg-neutral-primary-soft shadow-xs rounded-base border border-default">
-    <table className="w-full text-sm text-left rtl:text-right text-body">
-        <thead className="text-sm text-body bg-neutral-secondary-medium border-b border-default-medium">
+      <div className="overflow-x-auto shadow rounded border">
+        <table className="w-full text-sm text-left">
+          <thead className="bg-gray-100 border-b">
             <tr>
-                <th scope="col" className="px-16 py-3">
-                    <span className="sr-only">Image</span>
-                </th>
-                <th scope="col" className="px-6 py-3 font-medium">
-                    Product
-                </th>
-                <th scope="col" className="px-6 py-3 font-medium">
-                    Qty
-                </th>
-                <th scope="col" className="px-6 py-3 font-medium">
-                    Price
-                </th>
-                <th scope="col" className="px-6 py-3 font-medium">
-                    Action
-                </th>
+              <th className="px-6 py-3">Image</th>
+              <th className="px-6 py-3">Product</th>
+              <th className="px-6 py-3">Qty</th>
+              <th className="px-6 py-3">Price</th>
+              <th className="px-6 py-3">Action</th>
             </tr>
-        </thead>
-        <tbody>
-         {products.map((prod:productCartType)=>{
-           return <tr key={prod.product.id} className="bg-neutral-primary-soft border-b border-default hover:bg-neutral-secondary-medium">
-               <td className="p-4">
-                 <Image width={600} height={600}  src={prod.product.imageCover} className="w-16 md:w-24 max-w-full max-h-full" alt="Apple Watch"/>
-               </td>
-               <td className="px-6 py-4 font-semibold text-heading">
-                 {prod.product.title}
-               </td>
-               <td className="px-6 py-4">
-                 <form className="max-w-xs mx-auto">
-                   <label htmlFor={`counter-input-${prod.product.id}`} className="sr-only">Choose quantity:</label>
-                   <div className="relative flex items-center">
-                     <button disabled={disableUpdateBtn} onClick={() => updateCartProduct(prod.product.id,`${prod.count - 1}`
-, "-")} type="button" id={`decrement-button-${prod.product.id}`} data-input-counter-decrement={`counter-input-${prod.product.id}`} className="disabled:bg-slate-600 disabled:text-white  flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary rounded-full text-sm focus:outline-none h-6 w-6">
-                       <svg className="w-3 h-3 text-heading" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14"/></svg>
-                     </button>
+          </thead>
 
-                     {/* <input type="text" id={`counter-input-${prod.product.id}`} data-input-counter className="shrink-0 text-heading border-0 bg-transparent text-sm font-normal focus:outline-none focus:ring-0 max-w-[2.5rem] text-center" placeholder="" value={prod.count} required /> */}
-                      {currentId === prod.product.id ? updateLoading ? <i className='animate-spin fas fa-spinner'></i> : <span className='mx-2 ' >{prod.count}</span> : <span className='mx-2 ' >{prod.count}</span>}
+          <tbody>
+            {products.map((prod) => (
+              <tr key={prod.product.id} className="border-b">
+                <td className="p-4">
+                  <Image
+                    width={100}
+                    height={100}
+                    src={prod.product.imageCover}
+                    alt={prod.product.title}
+                  />
+                </td>
 
-                     <button disabled={disableUpdateBtn} onClick={() => updateCartProduct(prod.product.id, `${prod.count + 1}`,"+")} type="button" id={`increment-button-${prod.product.id}`} data-input-counter-increment={`counter-input-${prod.product.id}`} className="disabled:bg-slate-600 disabled:text-white flex items-center justify-center text-body bg-neutral-secondary-medium box-border border border-default-medium hover:bg-neutral-tertiary-medium hover:text-heading focus:ring-4 focus:ring-neutral-tertiary rounded-full text-sm focus:outline-none h-6 w-6">
+                <td className="px-6 py-4 font-semibold">
+                  {prod.product.title}
+                </td>
 
-                       <svg className="w-3 h-3 text-heading" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 12h14m-7 7V5"/></svg>
-                     </button>
-                   </div>
-                 </form>
-               </td>      
-            <td className="px-6 py-4 font-semibold text-heading">
-  ${prod.price * prod.count}
-</td>
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={disableUpdateBtn}
+                      onClick={() =>
+                        updateCartProduct(
+                          prod.product.id,
+                          prod.count - 1
+                        )
+                      }
+                      className="px-2 bg-gray-200 rounded"
+                    >
+                      -
+                    </button>
 
-               <td className="">
-                 <button disabled={DisableFlay} className="bg-red-500 w-full text-white mt-6 py-2 rounded-lg me-8
-      hover:bg-red-600 transition  hover:text-red-950" onClick={()=>{
-                   removeProductFromCart(prod.product.id)
-                 }} >Remove</button>
-               </td>
-             </tr>
-           
-         })}
+                    {currentId === prod.product.id && updateLoading ? (
+                      <span className="animate-spin">⏳</span>
+                    ) : (
+                      <span>{prod.count}</span>
+                    )}
 
+                    <button
+                      disabled={disableUpdateBtn}
+                      onClick={() =>
+                        updateCartProduct(
+                          prod.product.id,
+                          prod.count + 1
+                        )
+                      }
+                      className="px-2 bg-gray-200 rounded"
+                    >
+                      +
+                    </button>
+                  </div>
+                </td>
 
-          
-       
-       
-        </tbody>
-    </table>
-    
-</div>
-<Button className='text-white bg-green-500 rounded-2xl p-2 hover:bg-blue-600  cursor-pointer my-6 block ms-auto'>
+                <td className="px-6 py-4 font-semibold">
+                  ${prod.price * prod.count}
+                </td>
 
-        <Link href={`/checkout/${cartid}`}>check Out </Link>
+                <td className="px-6 py-4">
+                  <button
+                    disabled={disableRemoveBtn}
+                    className="bg-red-500 text-white px-4 py-2 rounded"
+                    onClick={() =>
+                      removeProductFromCart(prod.product.id)
+                    }
+                  >
+                    Remove
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-</Button>
-  </div>: <h1 className='text-center text-2xl font-bold my-10'>Your Cart is Empty</h1>
-  
-  }
-
-  
-  </>
+      <Button className="text-white bg-green-500 rounded p-2 my-6 block ms-auto">
+        <Link href={`/checkout/${cartId}`}>Check Out</Link>
+      </Button>
+    </div>
+  );
 }
