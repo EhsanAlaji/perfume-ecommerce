@@ -11,7 +11,7 @@ export default async function Details({params}:{params:Promise<{details:string}>
 const data = await getProductDetails(details);
 if(!data) return <h1>no product details here</h1>
 // console.log(details.data.category.name);
-const res = await getRelatedProducts(data.data?.category?._id);
+
   return<>
 <div className="container mx-auto my-8 md:w-[80%] 
 flex flex-col md:flex-row items-center gap-6">
