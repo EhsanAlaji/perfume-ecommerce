@@ -18,7 +18,7 @@ export default async function Categories() {
   return (
     <div className="container mx-auto my-4 md:w-[80%] w-full">
       <div className="flex flex-wrap">
-        {data.map((category: Category) => (
+        {data?.map((category: Category) => (
           <div
             key={category._id}
             className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/5 p-2"

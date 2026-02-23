@@ -32,6 +32,7 @@ export default function MySlider({ imgList, slidesPerView = 1 }: MySliderProps) 
             alt={`image-${index}`}
             priority={index === 0}
           />
+          
         </SwiperSlide>
       ))}
     </Swiper>
