@@ -114,6 +114,7 @@ router.push('/login');
                   <Input
                     {...field}
                     id="form-rhf-demo-email"
+                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="Enter your password please"
                     autoComplete="off"
@@ -138,6 +139,7 @@ router.push('/login');
                   <Input
                     {...field}
                     id="form-rhf-demo-rePassword"
+                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="Re-enter your password please"
                     autoComplete="off"

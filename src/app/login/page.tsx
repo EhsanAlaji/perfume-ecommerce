@@ -83,6 +83,7 @@ export default function Login() {
           <FieldGroup>
             <Controller
               name="password"
+              
               control={form.control}
               render={({ field, fieldState }) => (
                 <Field data-invalid={fieldState.invalid}>
@@ -92,6 +93,7 @@ export default function Login() {
                   <Input
                     {...field}
                     id="form-rhf-demo-email"
+                    type="password"
                     aria-invalid={fieldState.invalid}
                     placeholder="Enter your password please"
                     autoComplete="off"
