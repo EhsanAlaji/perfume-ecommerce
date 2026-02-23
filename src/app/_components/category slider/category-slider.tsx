@@ -6,6 +6,10 @@ import React from "react";
 export default async function CategorySlider() {
   const data = await getAllCategories();
 
+  if (!data || data.length === 0) {
+    return null; 
+  }
+
   const dataimage = data.map((ca: Category) => ca.image);
 
   return (
