@@ -118,9 +118,9 @@ console.log(id);
             />
           </FieldGroup>
           <Button className="w-full my-3" type="submit">
-            pay now visa
+            pay visa now 
           </Button>
-          <Button className="w-full my-3 bg-blue-600 hover:bg-blue-700"  onClick={()=>{removeCart() }}><Link href="/allorders">cahs</Link></Button>
+          <Button className="w-full my-3 bg-blue-600 hover:bg-blue-700"  onClick={()=>{removeCart() }}><Link href="/allorders">pay cash now </Link></Button>
         </form>
       </div>
     </>
